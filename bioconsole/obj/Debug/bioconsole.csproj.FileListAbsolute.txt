@@ -1,0 +1,11 @@
+c:\users\jason.neave\documents\visual studio 2013\Projects\biometric\bioconsole\bin\Debug\bioconsole.exe.config
+c:\users\jason.neave\documents\visual studio 2013\Projects\biometric\bioconsole\bin\Debug\bioconsole.exe
+c:\users\jason.neave\documents\visual studio 2013\Projects\biometric\bioconsole\bin\Debug\bioconsole.pdb
+c:\users\jason.neave\documents\visual studio 2013\Projects\biometric\bioconsole\bin\Debug\Microsoft.Kinect.dll
+c:\users\jason.neave\documents\visual studio 2013\Projects\biometric\bioconsole\bin\Debug\Microsoft.Kinect.xml
+c:\users\jason.neave\documents\visual studio 2013\Projects\biometric\bioconsole\obj\Debug\bioconsole.csprojResolveAssemblyReference.cache
+c:\users\jason.neave\documents\visual studio 2013\Projects\biometric\bioconsole\obj\Debug\bioconsole.exe
+c:\users\jason.neave\documents\visual studio 2013\Projects\biometric\bioconsole\obj\Debug\bioconsole.pdb
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\bioconsole.exe.config
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\obj\Debug\bioconsole.exe
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\obj\Debug\bioconsole.pdb

@@ -15,6 +15,10 @@ namespace bioconsole
         private static KinectSensor sensor = null;
         private static Body[] bodies = null;
         private static List<Tuple<JointType, JointType>> bones;
+        private static string name = string.Empty;
+
+        private enum VerificationState { StartEnrolment, CollectingData, Verifying }
+        private static VerificationState verificationState = VerificationState.Verifying;
 
         private static SQLiteConnection m_dbConnection;
 
@@ -32,7 +36,8 @@ namespace bioconsole
             bfr.FrameArrived += bfr_FrameArrived;
 
             Console.WriteLine("Running.");
-            Console.ReadLine();
+
+            Thread.Sleep(Timeout.Infinite);
         }
 
         private static void connectToDatabase()
@@ -135,7 +140,7 @@ namespace bioconsole
                     {
                         IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
                         Dictionary<string, float> person = new Dictionary<string, float>();
-
+                        
                         person.Add("neck", BoneLength(joints, JointType.Neck, JointType.Head));
                         person.Add("left_shin", BoneLength(joints, JointType.AnkleLeft, JointType.KneeLeft));
                         person.Add("right_shin", BoneLength(joints, JointType.AnkleRight, JointType.KneeRight));
@@ -148,28 +153,61 @@ namespace bioconsole
                         person.Add("spine_lower", BoneLength(joints, JointType.SpineBase, JointType.SpineMid));
                         person.Add("spine_upper", BoneLength(joints, JointType.SpineShoulder, JointType.SpineMid));
 
-                        string sql = "insert into people (name, left_thigh, right_thigh, left_shin, right_shin, spine_upper, spine_lower, forearm_left, forearm_right, upperarm_left, upperarm_right, neck)" +
-                            "values (@name, @left_thigh, @right_thigh, @left_shin, @right_shin, @spine_upper, @spine_lower, @forearm_left, @forearm_right, @upperarm_left, @upperarm_right, @neck)";
-
-                        //  left_thigh, right_thigh, left_shin, right_shin, spine_upper, spine_lower, forearm_left, forearm_right, upperarm_left, upperarm_right, neck
-
-                        SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
-
-                        command.Parameters.Add("name", System.Data.DbType.String);
-                        command.Parameters["name"].Value = "Wayne";
-
-                        foreach (string bone in person.Keys)
+                        if (body.HandLeftState == HandState.Closed && body.HandRightState == HandState.Open && verificationState == VerificationState.Verifying)
                         {
-                            command.Parameters.Add(bone, System.Data.DbType.Single);
-                            command.Parameters[bone].Value = person[bone];
+                            Console.WriteLine("Starting enrolment;");
+                            verificationState = VerificationState.StartEnrolment;
                         }
 
-                        command.ExecuteNonQuery();
-                           
+                        if (body.HandLeftState == HandState.Closed && body.HandRightState == HandState.Closed && verificationState == VerificationState.CollectingData)
+                        {
+                            Console.WriteLine("Enrolment complete.");
+                            verificationState = VerificationState.Verifying;
+                        }
+
+                        if (body.HandLeftState == HandState.Open && body.HandRightState == HandState.Closed && verificationState == VerificationState.CollectingData)
+                        {
+                            Console.WriteLine("Saving data at {0}", DateTime.Now.ToFileTime());
+                            SaveData(person, name);
+                        }
+
+
+                        switch (verificationState)
+                        {
+                            case VerificationState.StartEnrolment:
+                                Console.WriteLine("Please enter your name:");
+                                name = Console.ReadLine();
+                                verificationState = VerificationState.CollectingData;
+                                break;
+                            case VerificationState.Verifying:
+                                break;
+                        }
+
                         //Console.WriteLine("{0},{1},{2}", person["neck"], person["shin_left"], person["shin_right"]);
                     }
                 }
             }
+        }
+
+        private static void SaveData(Dictionary<string, float> person, string name)
+        {
+            string sql = "insert into people (name, left_thigh, right_thigh, left_shin, right_shin, spine_upper, spine_lower, forearm_left, forearm_right, upperarm_left, upperarm_right, neck)" +
+                "values (@name, @left_thigh, @right_thigh, @left_shin, @right_shin, @spine_upper, @spine_lower, @forearm_left, @forearm_right, @upperarm_left, @upperarm_right, @neck)";
+
+            //  left_thigh, right_thigh, left_shin, right_shin, spine_upper, spine_lower, forearm_left, forearm_right, upperarm_left, upperarm_right, neck
+
+            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+
+            command.Parameters.Add("name", System.Data.DbType.String);
+            command.Parameters["name"].Value = name;
+
+            foreach (string bone in person.Keys)
+            {
+                command.Parameters.Add(bone, System.Data.DbType.Single);
+                command.Parameters[bone].Value = person[bone];
+            }
+
+            command.ExecuteNonQuery();
         }
     }
 }

@@ -15,6 +15,9 @@ namespace bioconsole
         private static Body[] bodies = null;
         private static List<Tuple<JointType, JointType>> bones;
 
+        private static Dictionary<string, Dictionary<JointType, float>> people =
+            new Dictionary<string, Dictionary<JointType, float>>();
+
         static void Main(string[] args)
         {
             //  Create the list of joints

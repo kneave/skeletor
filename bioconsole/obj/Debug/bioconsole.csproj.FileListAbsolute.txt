@@ -7,3 +7,22 @@ c:\users\jason.neave\documents\visual studio 2013\Projects\biometric\bioconsole\
 c:\users\jason.neave\documents\visual studio 2013\Projects\biometric\bioconsole\obj\Debug\bioconsole.exe
 c:\users\jason.neave\documents\visual studio 2013\Projects\biometric\bioconsole\obj\Debug\bioconsole.pdb
 C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\bioconsole.exe.config
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\bioconsole.exe
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\bioconsole.pdb
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\EntityFramework.dll
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\Microsoft.Kinect.dll
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\SlimDX.dll
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\System.Data.SQLite.dll
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\System.Data.SQLite.EF6.dll
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\System.Data.SQLite.Linq.dll
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\EntityFramework.xml
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\Microsoft.Kinect.xml
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\SlimDX.pdb
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\SlimDX.xml
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\System.Data.SQLite.xml
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\obj\Debug\bioconsole.csprojResolveAssemblyReference.cache
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\obj\Debug\bioconsole.exe
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\obj\Debug\bioconsole.pdb
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\enrolment.db

@@ -2,6 +2,7 @@
 using SlimDX;
 using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -15,10 +16,14 @@ namespace bioconsole
         private static Body[] bodies = null;
         private static List<Tuple<JointType, JointType>> bones;
 
+        private static SQLiteConnection m_dbConnection;
+
         static void Main(string[] args)
         {
             //  Create the list of joints
-            GenerateBones();
+            //GenerateBones();
+
+            connectToDatabase();
 
             sensor = KinectSensor.GetDefault();
             sensor.Open();
@@ -28,6 +33,12 @@ namespace bioconsole
 
             Console.WriteLine("Running.");
             Console.ReadLine();
+        }
+
+        private static void connectToDatabase()
+        {
+            m_dbConnection = new SQLiteConnection("Data Source=enrolment.db;Version=3;");
+            m_dbConnection.Open();
         }
 
         private static float BoneLength(IReadOnlyDictionary<JointType, Joint> joints, JointType jointType0, JointType jointType1)
@@ -126,16 +137,36 @@ namespace bioconsole
                         Dictionary<string, float> person = new Dictionary<string, float>();
 
                         person.Add("neck", BoneLength(joints, JointType.Neck, JointType.Head));
-                        person.Add("shin_left", BoneLength(joints, JointType.AnkleLeft, JointType.KneeLeft));
-                        person.Add("shin_right", BoneLength(joints, JointType.AnkleRight, JointType.KneeRight));
-                        person.Add("thigh_left", BoneLength(joints, JointType.KneeLeft, JointType.HipLeft));
-                        person.Add("thigh_right", BoneLength(joints, JointType.KneeRight, JointType.HipRight));
+                        person.Add("left_shin", BoneLength(joints, JointType.AnkleLeft, JointType.KneeLeft));
+                        person.Add("right_shin", BoneLength(joints, JointType.AnkleRight, JointType.KneeRight));
+                        person.Add("left_thigh", BoneLength(joints, JointType.KneeLeft, JointType.HipLeft));
+                        person.Add("right_thigh", BoneLength(joints, JointType.KneeRight, JointType.HipRight));
                         person.Add("forearm_left", BoneLength(joints, JointType.HandLeft, JointType.ElbowLeft));
                         person.Add("forearm_right", BoneLength(joints, JointType.HandRight, JointType.ElbowRight));
                         person.Add("upperarm_left", BoneLength(joints, JointType.ShoulderLeft, JointType.ElbowLeft));
                         person.Add("upperarm_right", BoneLength(joints, JointType.ShoulderRight, JointType.ElbowRight));
                         person.Add("spine_lower", BoneLength(joints, JointType.SpineBase, JointType.SpineMid));
                         person.Add("spine_upper", BoneLength(joints, JointType.SpineShoulder, JointType.SpineMid));
+
+                        string sql = "insert into people (name, left_thigh, right_thigh, left_shin, right_shin, spine_upper, spine_lower, forearm_left, forearm_right, upperarm_left, upperarm_right, neck)" +
+                            "values (@name, @left_thigh, @right_thigh, @left_shin, @right_shin, @spine_upper, @spine_lower, @forearm_left, @forearm_right, @upperarm_left, @upperarm_right, @neck)";
+
+                        //  left_thigh, right_thigh, left_shin, right_shin, spine_upper, spine_lower, forearm_left, forearm_right, upperarm_left, upperarm_right, neck
+
+                        SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+
+                        command.Parameters.Add("name", System.Data.DbType.String);
+                        command.Parameters["name"].Value = "Wayne";
+
+                        foreach (string bone in person.Keys)
+                        {
+                            command.Parameters.Add(bone, System.Data.DbType.Single);
+                            command.Parameters[bone].Value = person[bone];
+                        }
+
+                        command.ExecuteNonQuery();
+                           
+                        //Console.WriteLine("{0},{1},{2}", person["neck"], person["shin_left"], person["shin_right"]);
                     }
                 }
             }

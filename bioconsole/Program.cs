@@ -1,4 +1,5 @@
 ﻿using Microsoft.Kinect;
+using SlimDX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,31 @@ namespace bioconsole
 
             Console.WriteLine("Running.");
             Console.ReadLine();
+        }
+
+        private static float BoneLength(IReadOnlyDictionary<JointType, Joint> joints, JointType jointType0, JointType jointType1)
+        {
+            Joint joint0 = joints[jointType0];
+            Joint joint1 = joints[jointType1];
+
+            float boneLength = -1;
+
+            // If we can't find either of these joints, exit
+            if (joint0.TrackingState == TrackingState.NotTracked ||
+                joint1.TrackingState == TrackingState.NotTracked)
+            {
+                return boneLength;
+            }
+
+            if ((joint0.TrackingState == TrackingState.Tracked) && (joint1.TrackingState == TrackingState.Tracked))
+            {
+                Vector3 jointPos0, jointPos1;
+                jointPos0 = new Vector3(joint0.Position.X, joint0.Position.Y, joint0.Position.Z);
+                jointPos1 = new Vector3(joint1.Position.X, joint1.Position.Y, joint1.Position.Z);
+                boneLength = Vector3.Distance(jointPos0, jointPos1);
+            }
+
+            return boneLength;
         }
 
         private static void GenerateBones()
@@ -97,8 +123,13 @@ namespace bioconsole
                     if (body.IsTracked)
                     {
                         IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
-                        Console.WriteLine("Body detected at {0}", DateTime.Now);
 
+                        foreach (Tuple<JointType, JointType> bone in bones)
+                        {
+                            float boneLength = BoneLength(joints, bone.Item1, bone.Item2);
+                            Console.WriteLine("Distance between {0} and {1} is {2}", bone.Item1, bone.Item2, boneLength);
+                        }
+                        Console.ReadLine();
                     }
                 }
             }

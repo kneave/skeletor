@@ -21,7 +21,7 @@ namespace bioconsole
         private static VerificationState verificationState = VerificationState.Verifying;
 
         private static SQLiteConnection m_dbConnection;
-
+        private static List<Dictionary<string, float>> enrolmentData = new List<Dictionary<string, float>>();
         static void Main(string[] args)
         {
             //  Create the list of joints
@@ -157,20 +157,80 @@ namespace bioconsole
                         {
                             Console.WriteLine("Starting enrolment;");
                             verificationState = VerificationState.StartEnrolment;
+                            enrolmentData.Clear();
                         }
 
-                        if (body.HandLeftState == HandState.Closed && body.HandRightState == HandState.Closed && verificationState == VerificationState.CollectingData)
-                        {
-                            Console.WriteLine("Enrolment complete.");
-                            verificationState = VerificationState.Verifying;
-                        }
+                        //if (body.HandLeftState == HandState.Closed && body.HandRightState == HandState.Closed && verificationState == VerificationState.CollectingData)
+                        //{
+                        //    Console.WriteLine("Enrolment complete.");
+                        //    verificationState = VerificationState.Verifying;
+                        //}
 
                         if (body.HandLeftState == HandState.Open && body.HandRightState == HandState.Closed && verificationState == VerificationState.CollectingData)
                         {
-                            Console.WriteLine("Saving data at {0}", DateTime.Now.ToFileTime());
-                            SaveData(person, name);
-                        }
+                            Dictionary<string, float> model = new Dictionary<string, float>();
 
+                            if (enrolmentData.Count >= 50)
+                            {
+                                Console.WriteLine("Enrolment complete.");
+                                verificationState = VerificationState.Verifying;
+
+                                model.Clear();
+
+                                //  add up the values for all parts
+                                foreach (var datapoint in enrolmentData)
+                                {
+                                    bool voidReading = false;
+
+                                    foreach (var part in datapoint.Keys)
+                                    {
+                                        if(datapoint[part] == -1)
+                                        {
+                                            voidReading = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if (voidReading)
+                                    {
+                                        continue;
+                                    }
+                                    
+                                    foreach (var part in person.Keys)
+                                    {
+                                        if (model.ContainsKey(part))
+                                        {
+                                            model[part] += datapoint[part];
+                                        }
+                                        else
+                                        {
+                                            model.Add(part, datapoint[part]);
+                                        }
+                                    }
+                                }
+
+                                //  calculate the average
+                                //  the +1 is because the last reading was still present in person
+                                string[] limbs = { "left_thigh", "right_thigh", "left_shin", "right_shin", "spine_upper", "spine_lower", "forearm_left", "forearm_right", "upperarm_left", "upperarm_right", "neck" };
+
+                                foreach (string limb in limbs)
+                                {
+                                    //  Convert from meters to cm
+                                    model[limb] = model[limb] * 100;
+                                    model[limb] = model[limb] / enrolmentData.Count;
+                                }
+
+                                //  Save the averaged data
+                                SaveData(model, name);
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("Saving data at {0}", DateTime.Now.ToFileTime());
+                                //SaveData(person, name);
+                                enrolmentData.Add(person);
+                            }
+                        }
 
                         switch (verificationState)
                         {

@@ -123,13 +123,19 @@ namespace bioconsole
                     if (body.IsTracked)
                     {
                         IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
+                        Dictionary<string, float> person = new Dictionary<string, float>();
 
-                        foreach (Tuple<JointType, JointType> bone in bones)
-                        {
-                            float boneLength = BoneLength(joints, bone.Item1, bone.Item2);
-                            Console.WriteLine("Distance between {0} and {1} is {2}", bone.Item1, bone.Item2, boneLength);
-                        }
-                        Console.ReadLine();
+                        person.Add("neck", BoneLength(joints, JointType.Neck, JointType.Head));
+                        person.Add("shin_left", BoneLength(joints, JointType.AnkleLeft, JointType.KneeLeft));
+                        person.Add("shin_right", BoneLength(joints, JointType.AnkleRight, JointType.KneeRight));
+                        person.Add("thigh_left", BoneLength(joints, JointType.KneeLeft, JointType.HipLeft));
+                        person.Add("thigh_right", BoneLength(joints, JointType.KneeRight, JointType.HipRight));
+                        person.Add("forearm_left", BoneLength(joints, JointType.HandLeft, JointType.ElbowLeft));
+                        person.Add("forearm_right", BoneLength(joints, JointType.HandRight, JointType.ElbowRight));
+                        person.Add("upperarm_left", BoneLength(joints, JointType.ShoulderLeft, JointType.ElbowLeft));
+                        person.Add("upperarm_right", BoneLength(joints, JointType.ShoulderRight, JointType.ElbowRight));
+                        person.Add("spine_lower", BoneLength(joints, JointType.SpineBase, JointType.SpineMid));
+                        person.Add("spine_upper", BoneLength(joints, JointType.SpineShoulder, JointType.SpineMid));
                     }
                 }
             }

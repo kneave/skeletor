@@ -334,7 +334,7 @@ namespace bioconsole
                         }
                         //Console.WriteLine("Feature count match for {0} is {1}", key, featureCount);
 
-                        if(featureCount >= 6)
+                        if(featureCount >= 7)
                         {
                             Console.WriteLine("Very likely {0} detected, {1} features matched.", key, featureCount);
                         }

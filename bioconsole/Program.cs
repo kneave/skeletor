@@ -269,9 +269,32 @@ namespace bioconsole
                                     }
 
                                     SQLiteDataReader reader = command.ExecuteReader();
-                                    while (reader.Read())
+
+                                    Dictionary<string, Dictionary<string, float>> results = new Dictionary<string, Dictionary<string, float>>();
+                                    if (reader.HasRows)
                                     {
-                                        Console.WriteLine("Probable user {0}", reader["name"]);
+                                        Console.Write("Name(s) returned: ");
+                                        while (reader.Read())
+                                        {
+                                            string resName = (string)reader["name"];
+                                            if (!results.ContainsKey(resName))
+                                            {
+                                                results.Add(resName, new Dictionary<string, float>());
+                                                foreach (string limb in limbs)
+                                                {
+                                                    try
+                                                    {
+                                                        results[resName].Add(limb, (float)reader[limb]);
+                                                    }
+                                                    catch (Exception ex)
+                                                    {
+                                                        // do nothing
+                                                    }
+                                                }
+                                            }
+                                            Console.Write("{0}, ", resName);
+                                        }
+                                        Console.WriteLine();
                                     }
                                 }
 

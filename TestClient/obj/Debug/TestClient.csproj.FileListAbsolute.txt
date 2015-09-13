@@ -1,0 +1,8 @@
+C:\Users\Jason.Neave\Documents\git\biometric\TestClient\bin\Debug\TestClient.exe.config
+C:\Users\Jason.Neave\Documents\git\biometric\TestClient\bin\Debug\TestClient.exe
+C:\Users\Jason.Neave\Documents\git\biometric\TestClient\bin\Debug\TestClient.pdb
+C:\Users\Jason.Neave\Documents\git\biometric\TestClient\bin\Debug\NetMQA.dll
+C:\Users\Jason.Neave\Documents\git\biometric\TestClient\bin\Debug\NetMQA.pdb
+C:\Users\Jason.Neave\Documents\git\biometric\TestClient\obj\Debug\TestClient.csprojResolveAssemblyReference.cache
+C:\Users\Jason.Neave\Documents\git\biometric\TestClient\obj\Debug\TestClient.exe
+C:\Users\Jason.Neave\Documents\git\biometric\TestClient\obj\Debug\TestClient.pdb

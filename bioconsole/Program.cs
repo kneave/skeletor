@@ -1,4 +1,5 @@
 ﻿using Microsoft.Kinect;
+using NetMQ;
 using SlimDX;
 using System;
 using System.Collections.Generic;
@@ -36,8 +37,49 @@ namespace bioconsole
             bfr.FrameArrived += bfr_FrameArrived;
 
             Console.WriteLine("Running.");
+            
+            using (NetMQContext context = NetMQContext.Create())
+            {
+                Task serverTask = Task.Factory.StartNew(() => StartServerNetMq(context));
+                Task.WaitAll(serverTask);
+            }
 
             Thread.Sleep(Timeout.Infinite);
+        }
+
+        private static void StartServerNetMq(NetMQContext context)
+        {
+            using (NetMQSocket serverSocket = context.CreateResponseSocket())
+            {
+                serverSocket.Options.SendTimeout = TimeSpan.FromMilliseconds(60000);
+
+                serverSocket.Bind(string.Format("tcp://*:{0}", 2804));
+                string message = string.Empty;
+                string retMsg = string.Empty;
+
+                Console.WriteLine("Server started;");
+
+                while (true)
+                {
+                    //log.WriteLog("Received command {0}, {1} bytes returned.", message, results.Length);
+                    try
+                    {
+                        message = serverSocket.ReceiveString();
+                        Console.WriteLine("Message: {0} received.");
+                        if(message == "Who's there?")
+                        {
+                            retMsg = name;
+                        }
+
+                        serverSocket.Send(retMsg);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error sending data; message: {0}, error: {1}", message, e);
+                        serverSocket.Send(string.Empty);
+                    }
+                }
+            }
         }
 
         private static void connectToDatabase()
@@ -152,6 +194,8 @@ namespace bioconsole
                         person.Add("upperarm_right", BoneLength(joints, JointType.ShoulderRight, JointType.ElbowRight));
                         person.Add("spine_lower", BoneLength(joints, JointType.SpineBase, JointType.SpineMid));
                         person.Add("spine_upper", BoneLength(joints, JointType.SpineShoulder, JointType.SpineMid));
+                        person.Add("shoulder_width", BoneLength(joints, JointType.ShoulderLeft, JointType.ShoulderRight));
+                        person.Add("hip_width", BoneLength(joints, JointType.HipLeft, JointType.HipRight));
 
                         string[] limbs = { "left_thigh", "right_thigh", "left_shin", "right_shin", "spine_upper", "spine_lower", "forearm_left", "forearm_right", "upperarm_left", "upperarm_right", "neck" };
 
@@ -334,9 +378,10 @@ namespace bioconsole
                         }
                         //Console.WriteLine("Feature count match for {0} is {1}", key, featureCount);
 
-                        if(featureCount >= 7)
+                        if(featureCount >= 9)
                         {
                             Console.WriteLine("Very likely {0} detected, {1} features matched.", key, featureCount);
+                            name = key;
                         }
                     }
                 }

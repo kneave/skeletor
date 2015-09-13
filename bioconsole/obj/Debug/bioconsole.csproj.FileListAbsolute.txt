@@ -26,3 +26,5 @@ C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\obj\Debug\bioconsole.csp
 C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\obj\Debug\bioconsole.exe
 C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\obj\Debug\bioconsole.pdb
 C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\enrolment.db
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\NetMQA.dll
+C:\Users\Jason.Neave\Documents\git\biometric\bioconsole\bin\Debug\NetMQA.pdb

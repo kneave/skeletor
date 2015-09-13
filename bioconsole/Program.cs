@@ -23,6 +23,9 @@ namespace bioconsole
 
         private static SQLiteConnection m_dbConnection;
         private static List<Dictionary<string, float>> enrolmentData = new List<Dictionary<string, float>>();
+        
+        private static int enrolmentModeCounter = 0;
+
         static void Main(string[] args)
         {
             //  Create the list of joints
@@ -65,7 +68,7 @@ namespace bioconsole
                     try
                     {
                         message = serverSocket.ReceiveString();
-                        Console.WriteLine("Message: {0} received.");
+                        Console.WriteLine("Message: {0} received.", message);
                         if(message == "Who's there?")
                         {
                             retMsg = name;
@@ -204,9 +207,18 @@ namespace bioconsole
 
                         if (body.HandLeftState == HandState.Closed && body.HandRightState == HandState.Open && verificationState == VerificationState.Verifying)
                         {
-                            Console.WriteLine("Starting enrolment;");
-                            verificationState = VerificationState.StartEnrolment;
-                            enrolmentData.Clear();
+                            enrolmentModeCounter++;
+
+                            if (enrolmentModeCounter >= 20)
+                            {
+                                Console.WriteLine("Starting enrolment;");
+                                verificationState = VerificationState.StartEnrolment;
+                                enrolmentData.Clear();
+                            }
+                        }
+                        else
+                        {
+                            enrolmentModeCounter = 0;
                         }
 
                         if (body.HandLeftState == HandState.Open && body.HandRightState == HandState.Closed && verificationState == VerificationState.CollectingData)
@@ -306,9 +318,9 @@ namespace bioconsole
                 "(upperarm_left between @upperarm_left_lower and @upperarm_left_upper) or" +
                 "(upperarm_right between @upperarm_right_lower and @upperarm_right_upper) or " +
                 "(neck between @neck_lower and @neck_upper) or " +
-                "(neck between @shoulder_width_lower and @shoulder_width_upper) or " + 
-                "(neck between @hip_width_lower and @hip_width_upper) or " +
-                "(neck between @height_lower and @height_upper)";
+                "(shoulder_width between @shoulder_width_lower and @shoulder_width_upper) or " + 
+                "(hip_width between @hip_width_lower and @hip_width_upper) or " +
+                "(height between @height_lower and @height_upper)";
 
             using (SQLiteCommand command = new SQLiteCommand(m_dbConnection))
             {
@@ -337,7 +349,6 @@ namespace bioconsole
                             results.Add(resName, new Dictionary<string, double>());
                             try
                             {
-                                //  TODO: check more results
                                 results[resName].Add(limbs[0], (double)reader[limbs[0]]);
                                 results[resName].Add(limbs[1], (double)reader[limbs[1]]);
                                 results[resName].Add(limbs[2], (double)reader[limbs[2]]);
@@ -374,8 +385,8 @@ namespace bioconsole
                             double queryValue = results[key][limb];
 
                             float lower, upper;
-                            lower = detectedValue - 0.1f;
-                            upper = detectedValue + 0.1f;
+                            lower = detectedValue - 0.5f;
+                            upper = detectedValue + 0.5f;
 
                             if ((lower < queryValue) && (upper > queryValue))
                                 featureCount++;

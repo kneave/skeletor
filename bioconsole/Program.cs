@@ -374,17 +374,17 @@ namespace bioconsole
                             double queryValue = results[key][limb];
 
                             float lower, upper;
-                            lower = detectedValue - 1f;
-                            upper = detectedValue + 1f;
+                            lower = detectedValue - 0.1f;
+                            upper = detectedValue + 0.1f;
 
                             if ((lower < queryValue) && (upper > queryValue))
                                 featureCount++;
                         }
                         //Console.WriteLine("Feature count match for {0} is {1}", key, featureCount);
 
-                        if(featureCount >= 12)
+                        if(featureCount >= 7)
                         {
-                            Console.WriteLine("Very likely {0} detected, {1} features matched.", key, featureCount);
+                            Console.WriteLine("Very likely {0} detected, {1} features matched at {2}.", key, featureCount, DateTime.Now.ToFileTime());
                             name = key;
                         }
                     }

@@ -241,67 +241,103 @@ namespace bioconsole
                                 verificationState = VerificationState.CollectingData;
                                 break;
                             case VerificationState.Verifying:
-
-                                string getModels = "select * from people where " +
-                                    //"(left_thigh between @left_thigh_lower and @left_thigh_upper) or " +
-                                    //"(right_thigh between @right_thigh_lower and @right_thigh_upper) or " +
-                                    //"(left_shin between @left_shin_lower and @left_shin_upper) or " +
-                                    //"(right_shin between @right_shin_lower and @right_shin_upper) or " +
-                                    //"(spine_upper between @spine_upper_lower and @spine_upper_upper) or " +
-                                    //"(spine_lower between @spine_lower_lower and @spine_lower_upper) or " +
-                                    //"(forearm_left between @forearm_left_lower and @forearm_left_upper) or " +
-                                    //"(forearm_right between @forearm_right_lower and @forearm_right_upper) or" +
-                                    //"(upperarm_left between @upperarm_left_lower and @upperarm_left_upper) or" +
-                                    //"(upperarm_right between @upperarm_right_lower and @upperarm_right_upper) or " +
-                                    "(neck between @neck_lower and @neck_upper)";
-
-                                using (SQLiteCommand command = new SQLiteCommand(m_dbConnection))
-                                {
-                                    command.CommandText = getModels;
-
-                                    foreach (string limb in limbs)
-                                    {
-                                        command.Parameters.Add(limb + "_lower", System.Data.DbType.Single);
-                                        command.Parameters[limb + "_lower"].Value = (person[limb] * 100) - 0.1f;
-
-                                        command.Parameters.Add(limb + "_upper", System.Data.DbType.Single);
-                                        command.Parameters[limb + "_upper"].Value = (person[limb] * 100) + 0.1f;
-                                    }
-
-                                    SQLiteDataReader reader = command.ExecuteReader();
-
-                                    Dictionary<string, Dictionary<string, float>> results = new Dictionary<string, Dictionary<string, float>>();
-                                    if (reader.HasRows)
-                                    {
-                                        Console.Write("Name(s) returned: ");
-                                        while (reader.Read())
-                                        {
-                                            string resName = (string)reader["name"];
-                                            if (!results.ContainsKey(resName))
-                                            {
-                                                results.Add(resName, new Dictionary<string, float>());
-                                                foreach (string limb in limbs)
-                                                {
-                                                    try
-                                                    {
-                                                        results[resName].Add(limb, (float)reader[limb]);
-                                                    }
-                                                    catch (Exception ex)
-                                                    {
-                                                        // do nothing
-                                                    }
-                                                }
-                                            }
-                                            Console.Write("{0}, ", resName);
-                                        }
-                                        Console.WriteLine();
-                                    }
-                                }
-
+                                VerifySkeleton(person, limbs);
                                 break;
                         }
 
                         //Console.WriteLine("{0},{1},{2}", person["neck"], person["shin_left"], person["shin_right"]);
+                    }
+                }
+            }
+        }
+
+        private static void VerifySkeleton(Dictionary<string, float> person, string[] limbs)
+        {
+            string getModels = "select * from people where " +
+                "(left_thigh between @left_thigh_lower and @left_thigh_upper) or " +
+                "(right_thigh between @right_thigh_lower and @right_thigh_upper) or " +
+                "(left_shin between @left_shin_lower and @left_shin_upper) or " +
+                "(right_shin between @right_shin_lower and @right_shin_upper) or " +
+                "(spine_upper between @spine_upper_lower and @spine_upper_upper) or " +
+                "(spine_lower between @spine_lower_lower and @spine_lower_upper) or " +
+                "(forearm_left between @forearm_left_lower and @forearm_left_upper) or " +
+                "(forearm_right between @forearm_right_lower and @forearm_right_upper) or" +
+                "(upperarm_left between @upperarm_left_lower and @upperarm_left_upper) or" +
+                "(upperarm_right between @upperarm_right_lower and @upperarm_right_upper) or " +
+                "(neck between @neck_lower and @neck_upper)";
+
+            using (SQLiteCommand command = new SQLiteCommand(m_dbConnection))
+            {
+                command.CommandText = getModels;
+
+                foreach (string limb in limbs)
+                {
+                    command.Parameters.Add(limb + "_lower", System.Data.DbType.Single);
+                    command.Parameters[limb + "_lower"].Value = (person[limb] * 100) - 0.1f;
+
+                    command.Parameters.Add(limb + "_upper", System.Data.DbType.Single);
+                    command.Parameters[limb + "_upper"].Value = (person[limb] * 100) + 0.1f;
+                }
+
+                SQLiteDataReader reader = command.ExecuteReader();
+
+                Dictionary<string, Dictionary<string, double>> results = new Dictionary<string, Dictionary<string, double>>();
+                if (reader.HasRows)
+                {
+                    //Console.Write("Name(s) returned: ");
+                    while (reader.Read())
+                    {
+                        string resName = (string)reader["name"];
+                        if (!results.ContainsKey(resName))
+                        {
+                            results.Add(resName, new Dictionary<string, double>());
+                            try
+                            {
+                                results[resName].Add(limbs[0], (double)reader[limbs[0]]);
+                                results[resName].Add(limbs[1], (double)reader[limbs[1]]);
+                                results[resName].Add(limbs[2], (double)reader[limbs[2]]);
+                                results[resName].Add(limbs[3], (double)reader[limbs[3]]);
+                                results[resName].Add(limbs[4], (double)reader[limbs[4]]);
+                                results[resName].Add(limbs[5], (double)reader[limbs[5]]);
+                                results[resName].Add(limbs[6], (double)reader[limbs[6]]);
+                                results[resName].Add(limbs[7], (double)reader[limbs[7]]);
+                                results[resName].Add(limbs[8], (double)reader[limbs[8]]);
+                                results[resName].Add(limbs[9], (double)reader[limbs[9]]);
+                                results[resName].Add(limbs[10], (double)reader[limbs[10]]);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex);
+                            }
+                        }
+                        //Console.Write("{0}, ", resName);
+                    }
+                    //Console.WriteLine();
+
+                    //  Iterate through the results dictionary to compare values against detected
+                    //  count how many are close matches
+
+                    foreach (string key in results.Keys)
+                    {
+                        int featureCount = 0;
+                        foreach (string limb in results[key].Keys)
+                        {
+                            float detectedValue = person[limb] * 100;
+                            double queryValue = results[key][limb];
+
+                            float lower, upper;
+                            lower = detectedValue - 1f;
+                            upper = detectedValue + 1f;
+
+                            if ((lower < queryValue) && (upper > queryValue))
+                                featureCount++;
+                        }
+                        //Console.WriteLine("Feature count match for {0} is {1}", key, featureCount);
+
+                        if(featureCount >= 6)
+                        {
+                            Console.WriteLine("Very likely {0} detected, {1} features matched.", key, featureCount);
+                        }
                     }
                 }
             }

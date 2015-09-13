@@ -197,7 +197,10 @@ namespace bioconsole
                         person.Add("shoulder_width", BoneLength(joints, JointType.ShoulderLeft, JointType.ShoulderRight));
                         person.Add("hip_width", BoneLength(joints, JointType.HipLeft, JointType.HipRight));
 
-                        string[] limbs = { "left_thigh", "right_thigh", "left_shin", "right_shin", "spine_upper", "spine_lower", "forearm_left", "forearm_right", "upperarm_left", "upperarm_right", "neck" };
+                        float height = person["left_shin"] + person["left_thigh"] + person["spine_lower"] + person["spine_upper"] + person["neck"];
+                        person.Add("height", height);
+                        
+                        string[] limbs = { "left_thigh", "right_thigh", "left_shin", "right_shin", "spine_upper", "spine_lower", "forearm_left", "forearm_right", "upperarm_left", "upperarm_right", "neck", "shoulder_width", "hip_width", "height" };
 
                         if (body.HandLeftState == HandState.Closed && body.HandRightState == HandState.Open && verificationState == VerificationState.Verifying)
                         {
@@ -205,12 +208,6 @@ namespace bioconsole
                             verificationState = VerificationState.StartEnrolment;
                             enrolmentData.Clear();
                         }
-
-                        //if (body.HandLeftState == HandState.Closed && body.HandRightState == HandState.Closed && verificationState == VerificationState.CollectingData)
-                        //{
-                        //    Console.WriteLine("Enrolment complete.");
-                        //    verificationState = VerificationState.Verifying;
-                        //}
 
                         if (body.HandLeftState == HandState.Open && body.HandRightState == HandState.Closed && verificationState == VerificationState.CollectingData)
                         {
@@ -308,7 +305,10 @@ namespace bioconsole
                 "(forearm_right between @forearm_right_lower and @forearm_right_upper) or" +
                 "(upperarm_left between @upperarm_left_lower and @upperarm_left_upper) or" +
                 "(upperarm_right between @upperarm_right_lower and @upperarm_right_upper) or " +
-                "(neck between @neck_lower and @neck_upper)";
+                "(neck between @neck_lower and @neck_upper) or " +
+                "(neck between @shoulder_width_lower and @shoulder_width_upper) or " + 
+                "(neck between @hip_width_lower and @hip_width_upper) or " +
+                "(neck between @height_lower and @height_upper)";
 
             using (SQLiteCommand command = new SQLiteCommand(m_dbConnection))
             {
@@ -337,6 +337,7 @@ namespace bioconsole
                             results.Add(resName, new Dictionary<string, double>());
                             try
                             {
+                                //  TODO: check more results
                                 results[resName].Add(limbs[0], (double)reader[limbs[0]]);
                                 results[resName].Add(limbs[1], (double)reader[limbs[1]]);
                                 results[resName].Add(limbs[2], (double)reader[limbs[2]]);
@@ -348,6 +349,9 @@ namespace bioconsole
                                 results[resName].Add(limbs[8], (double)reader[limbs[8]]);
                                 results[resName].Add(limbs[9], (double)reader[limbs[9]]);
                                 results[resName].Add(limbs[10], (double)reader[limbs[10]]);
+                                results[resName].Add(limbs[11], (double)reader[limbs[11]]);
+                                results[resName].Add(limbs[12], (double)reader[limbs[12]]);
+                                results[resName].Add(limbs[13], (double)reader[limbs[13]]);
                             }
                             catch (Exception ex)
                             {
@@ -378,7 +382,7 @@ namespace bioconsole
                         }
                         //Console.WriteLine("Feature count match for {0} is {1}", key, featureCount);
 
-                        if(featureCount >= 9)
+                        if(featureCount >= 12)
                         {
                             Console.WriteLine("Very likely {0} detected, {1} features matched.", key, featureCount);
                             name = key;
@@ -390,8 +394,8 @@ namespace bioconsole
 
         private static void SaveData(Dictionary<string, float> person, string name)
         {
-            string sql = "insert into people (name, left_thigh, right_thigh, left_shin, right_shin, spine_upper, spine_lower, forearm_left, forearm_right, upperarm_left, upperarm_right, neck)" +
-                "values (@name, @left_thigh, @right_thigh, @left_shin, @right_shin, @spine_upper, @spine_lower, @forearm_left, @forearm_right, @upperarm_left, @upperarm_right, @neck)";
+            string sql = "insert into people (name, left_thigh, right_thigh, left_shin, right_shin, spine_upper, spine_lower, forearm_left, forearm_right, upperarm_left, upperarm_right, neck, shoulder_width, hip_width, height)" +
+                "values (@name, @left_thigh, @right_thigh, @left_shin, @right_shin, @spine_upper, @spine_lower, @forearm_left, @forearm_right, @upperarm_left, @upperarm_right, @neck, @shoulder_width, @hip_width, @height)";
 
             //  left_thigh, right_thigh, left_shin, right_shin, spine_upper, spine_lower, forearm_left, forearm_right, upperarm_left, upperarm_right, neck
 

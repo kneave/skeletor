@@ -153,6 +153,8 @@ namespace bioconsole
                         person.Add("spine_lower", BoneLength(joints, JointType.SpineBase, JointType.SpineMid));
                         person.Add("spine_upper", BoneLength(joints, JointType.SpineShoulder, JointType.SpineMid));
 
+                        string[] limbs = { "left_thigh", "right_thigh", "left_shin", "right_shin", "spine_upper", "spine_lower", "forearm_left", "forearm_right", "upperarm_left", "upperarm_right", "neck" };
+
                         if (body.HandLeftState == HandState.Closed && body.HandRightState == HandState.Open && verificationState == VerificationState.Verifying)
                         {
                             Console.WriteLine("Starting enrolment;");
@@ -211,7 +213,6 @@ namespace bioconsole
 
                                 //  calculate the average
                                 //  the +1 is because the last reading was still present in person
-                                string[] limbs = { "left_thigh", "right_thigh", "left_shin", "right_shin", "spine_upper", "spine_lower", "forearm_left", "forearm_right", "upperarm_left", "upperarm_right", "neck" };
 
                                 foreach (string limb in limbs)
                                 {
@@ -221,7 +222,7 @@ namespace bioconsole
                                 }
 
                                 //  Save the averaged data
-                                SaveData(model, name);
+                                SaveData(model,name);
 
                             }
                             else
@@ -240,6 +241,40 @@ namespace bioconsole
                                 verificationState = VerificationState.CollectingData;
                                 break;
                             case VerificationState.Verifying:
+
+                                string getModels = "select * from people where " +
+                                    //"(left_thigh between @left_thigh_lower and @left_thigh_upper) or " +
+                                    //"(right_thigh between @right_thigh_lower and @right_thigh_upper) or " +
+                                    //"(left_shin between @left_shin_lower and @left_shin_upper) or " +
+                                    //"(right_shin between @right_shin_lower and @right_shin_upper) or " +
+                                    //"(spine_upper between @spine_upper_lower and @spine_upper_upper) or " +
+                                    //"(spine_lower between @spine_lower_lower and @spine_lower_upper) or " +
+                                    //"(forearm_left between @forearm_left_lower and @forearm_left_upper) or " +
+                                    //"(forearm_right between @forearm_right_lower and @forearm_right_upper) or" +
+                                    //"(upperarm_left between @upperarm_left_lower and @upperarm_left_upper) or" +
+                                    //"(upperarm_right between @upperarm_right_lower and @upperarm_right_upper) or " +
+                                    "(neck between @neck_lower and @neck_upper)";
+
+                                using (SQLiteCommand command = new SQLiteCommand(m_dbConnection))
+                                {
+                                    command.CommandText = getModels;
+
+                                    foreach (string limb in limbs)
+                                    {
+                                        command.Parameters.Add(limb + "_lower", System.Data.DbType.Single);
+                                        command.Parameters[limb + "_lower"].Value = (person[limb] * 100) - 0.1f;
+
+                                        command.Parameters.Add(limb + "_upper", System.Data.DbType.Single);
+                                        command.Parameters[limb + "_upper"].Value = (person[limb] * 100) + 0.1f;
+                                    }
+
+                                    SQLiteDataReader reader = command.ExecuteReader();
+                                    while (reader.Read())
+                                    {
+                                        Console.WriteLine("Probable user {0}", reader["name"]);
+                                    }
+                                }
+
                                 break;
                         }
 

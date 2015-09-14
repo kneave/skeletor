@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TestClient
@@ -11,17 +12,29 @@ namespace TestClient
     {
         static void Main(string[] args)
         {
+            System.Timers.Timer timer = new System.Timers.Timer();
+            timer.Elapsed += timer_Elapsed;
+            timer.Start();
+
+            Thread.Sleep(Timeout.Infinite);
+        }
+
+        static void timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            WhosThere();
+        }
+
+        private static void WhosThere()
+        {
             string request = "Who's there?";
             Console.WriteLine("asking {0}", request);
 
             Console.WriteLine(SendRequest(request));
-
-            Console.ReadLine();
         }
 
         public static string SendRequest(string request, int timeout = 5000)
         {
-            string joshuaHost = "127.0.0.1";
+            string joshuaHost = "10.30.16.16";
             string joshuaPort = "2804";
             //logHandler.WriteLog(string.Format("Sent request: {0}", request));
             using (NetMQContext context = NetMQContext.Create())

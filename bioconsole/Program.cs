@@ -23,8 +23,9 @@ namespace bioconsole
 
         private static SQLiteConnection m_dbConnection;
         private static List<Dictionary<string, float>> enrolmentData = new List<Dictionary<string, float>>();
-        
+
         private static int enrolmentModeCounter = 0;
+        private static DateTime lastVerification = DateTime.MinValue;
 
         static void Main(string[] args)
         {
@@ -68,9 +69,14 @@ namespace bioconsole
                     try
                     {
                         message = serverSocket.ReceiveString();
-                        Console.WriteLine("Message: {0} received.", message);
+                        //Console.WriteLine("Message: {0} received.", message);
                         if(message == "Who's there?")
                         {
+                            TimeSpan timeSinceLast = DateTime.Now - lastVerification;
+
+                            //if (verificationState == VerificationState.Verifying && timeSinceLast.TotalSeconds > 15)
+                            //    name = string.Empty;
+
                             retMsg = name;
                         }
 
@@ -209,7 +215,7 @@ namespace bioconsole
                         {
                             enrolmentModeCounter++;
 
-                            if (enrolmentModeCounter >= 20)
+                            if (enrolmentModeCounter >= 10)
                             {
                                 Console.WriteLine("Starting enrolment;");
                                 verificationState = VerificationState.StartEnrolment;
@@ -291,6 +297,7 @@ namespace bioconsole
                             case VerificationState.StartEnrolment:
                                 Console.WriteLine("Please enter your name:");
                                 name = Console.ReadLine();
+                                Console.WriteLine("{0} entered", name);
                                 verificationState = VerificationState.CollectingData;
                                 break;
                             case VerificationState.Verifying:
@@ -395,6 +402,7 @@ namespace bioconsole
 
                         if(featureCount >= 7)
                         {
+                            lastVerification = DateTime.Now;
                             Console.WriteLine("Very likely {0} detected, {1} features matched at {2}.", key, featureCount, DateTime.Now.ToFileTime());
                             name = key;
                         }
